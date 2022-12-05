@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1114,33 +1113,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                       return PointerInterceptor(
                         child: AlertDialog(
                           scrollable: true,
-                          content: ColorPicker(
-                            color: newColor,
-                            onColorChanged: (color) {
-                              newColor = color;
-                            },
-                            title: Text('Choose a Color',
-                                style: Theme.of(context).textTheme.headline6),
-                            width: 40,
-                            height: 40,
-                            spacing: 0,
-                            runSpacing: 0,
-                            borderRadius: 0,
-                            wheelDiameter: 165,
-                            enableOpacity: false,
-                            showColorCode: true,
-                            colorCodeHasColor: true,
-                            pickersEnabled: <ColorPickerType, bool>{
-                              ColorPickerType.wheel: true,
-                            },
-                            copyPasteBehavior:
-                                const ColorPickerCopyPasteBehavior(
-                              parseShortHexCode: true,
-                            ),
-                            actionButtons: const ColorPickerActionButtons(
-                              dialogActionButtons: true,
-                            ),
-                          ),
+                          content: Container(),
                           actions: <Widget>[
                             TextButton(
                               onPressed: () {
