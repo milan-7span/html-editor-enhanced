@@ -72,12 +72,6 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
   /// Sets the selected item for the font units dropdown
   String _fontSizeUnitSelectedItem = 'pt';
 
-  /// Sets the selected item for the foreground color dialog
-  Color _foreColorSelected = Colors.black;
-
-  /// Sets the selected item for the background color dialog
-  Color _backColorSelected = Colors.yellow;
-
   /// Sets the selected item for the list style dropdown
   String? _listStyleSelectedItem;
 
@@ -174,28 +168,6 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
       });
     }
     //update the fore/back selected color if necessary
-    if (colorList[0] != null && colorList[0]!.isNotEmpty) {
-      setState(mounted, this.setState, () {
-        var rgb = colorList[0]!.replaceAll('rgb(', '').replaceAll(')', '');
-        var rgbList = rgb.split(', ');
-        _foreColorSelected = Color.fromRGBO(int.parse(rgbList[0]),
-            int.parse(rgbList[1]), int.parse(rgbList[2]), 1);
-      });
-    } else {
-      setState(mounted, this.setState, () {
-        _foreColorSelected = Colors.black;
-      });
-    }
-    if (colorList[1] != null && colorList[1]!.isNotEmpty) {
-      setState(mounted, this.setState, () {
-        _backColorSelected =
-            Color(int.parse(colorList[1]!, radix: 16) + 0xFF000000);
-      });
-    } else {
-      setState(mounted, this.setState, () {
-        _backColorSelected = Colors.yellow;
-      });
-    }
     //check the list style if it matches one of the predetermined styles and update the toolbar
     if ([
       'decimal',
@@ -312,8 +284,6 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
           isStrikethrough: miscFontList[0] ?? false,
           isSuperscript: miscFontList[1] ?? false,
           isSubscript: miscFontList[2] ?? false,
-          foregroundColor: _foreColorSelected,
-          backgroundColor: _backColorSelected,
           isUl: paragraphList[0] ?? false,
           isOl: paragraphList[1] ?? false,
           isAlignLeft: alignList[0] ?? false,
@@ -1020,176 +990,6 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
             children: t.getIcons2(),
           ));
         }
-      }
-      if (t is ColorButtons && (t.foregroundColor || t.highlightColor)) {
-        toolbarChildren.add(ToggleButtons(
-          constraints: BoxConstraints.tightFor(
-            width: widget.htmlToolbarOptions.toolbarItemHeight - 2,
-            height: widget.htmlToolbarOptions.toolbarItemHeight - 2,
-          ),
-          color: widget.htmlToolbarOptions.buttonColor,
-          selectedColor: widget.htmlToolbarOptions.buttonSelectedColor,
-          fillColor: widget.htmlToolbarOptions.buttonFillColor,
-          focusColor: widget.htmlToolbarOptions.buttonFocusColor,
-          highlightColor: widget.htmlToolbarOptions.buttonHighlightColor,
-          hoverColor: widget.htmlToolbarOptions.buttonHoverColor,
-          splashColor: widget.htmlToolbarOptions.buttonSplashColor,
-          selectedBorderColor:
-              widget.htmlToolbarOptions.buttonSelectedBorderColor,
-          borderColor: widget.htmlToolbarOptions.buttonBorderColor,
-          borderRadius: widget.htmlToolbarOptions.buttonBorderRadius,
-          borderWidth: widget.htmlToolbarOptions.buttonBorderWidth,
-          renderBorder: widget.htmlToolbarOptions.renderBorder,
-          textStyle: widget.htmlToolbarOptions.textStyle,
-          onPressed: (int index) async {
-            void updateStatus(Color? color) {
-              setState(mounted, this.setState, () {
-                _colorSelected[index] = !_colorSelected[index];
-                if (color != null &&
-                    t.getIcons()[index].icon == Icons.format_color_text) {
-                  _foreColorSelected = color;
-                }
-                if (color != null &&
-                    t.getIcons()[index].icon == Icons.format_color_fill) {
-                  _backColorSelected = color;
-                }
-              });
-            }
-
-            if (_colorSelected[index]) {
-              if (t.getIcons()[index].icon == Icons.format_color_text) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
-                        ?.call(ButtonType.foregroundColor,
-                            _colorSelected[index], updateStatus) ??
-                    true;
-                if (proceed) {
-                  widget.controller.execCommand('foreColor',
-                      argument: (Colors.black.value & 0xFFFFFF)
-                          .toRadixString(16)
-                          .padLeft(6, '0')
-                          .toUpperCase());
-                  updateStatus(null);
-                }
-              }
-              if (t.getIcons()[index].icon == Icons.format_color_fill) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
-                        ?.call(ButtonType.highlightColor, _colorSelected[index],
-                            updateStatus) ??
-                    true;
-                if (proceed) {
-                  widget.controller.execCommand('hiliteColor',
-                      argument: (Colors.yellow.value & 0xFFFFFF)
-                          .toRadixString(16)
-                          .padLeft(6, '0')
-                          .toUpperCase());
-                  updateStatus(null);
-                }
-              }
-            } else {
-              var proceed = true;
-              if (t.getIcons()[index].icon == Icons.format_color_text) {
-                proceed = await widget.htmlToolbarOptions.onButtonPressed?.call(
-                        ButtonType.foregroundColor,
-                        _colorSelected[index],
-                        updateStatus) ??
-                    true;
-              } else if (t.getIcons()[index].icon == Icons.format_color_fill) {
-                proceed = await widget.htmlToolbarOptions.onButtonPressed?.call(
-                        ButtonType.highlightColor,
-                        _colorSelected[index],
-                        updateStatus) ??
-                    true;
-              }
-              if (proceed) {
-                late Color newColor;
-                if (t.getIcons()[index].icon == Icons.format_color_text) {
-                  newColor = _foreColorSelected;
-                } else {
-                  newColor = _backColorSelected;
-                }
-                await showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return PointerInterceptor(
-                        child: AlertDialog(
-                          scrollable: true,
-                          content: Container(),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('Cancel'),
-                            ),
-                            TextButton(
-                                onPressed: () {
-                                  if (t.getIcons()[index].icon ==
-                                      Icons.format_color_text) {
-                                    setState(mounted, this.setState, () {
-                                      _foreColorSelected = Colors.black;
-                                    });
-                                    widget.controller.execCommand(
-                                        'removeFormat',
-                                        argument: 'foreColor');
-                                    widget.controller.execCommand('foreColor',
-                                        argument: 'initial');
-                                  }
-                                  if (t.getIcons()[index].icon ==
-                                      Icons.format_color_fill) {
-                                    setState(mounted, this.setState, () {
-                                      _backColorSelected = Colors.yellow;
-                                    });
-                                    widget.controller.execCommand(
-                                        'removeFormat',
-                                        argument: 'hiliteColor');
-                                    widget.controller.execCommand('hiliteColor',
-                                        argument: 'initial');
-                                  }
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('Reset to default color')),
-                            TextButton(
-                              onPressed: () {
-                                if (t.getIcons()[index].icon ==
-                                    Icons.format_color_text) {
-                                  widget.controller.execCommand('foreColor',
-                                      argument: (newColor.value & 0xFFFFFF)
-                                          .toRadixString(16)
-                                          .padLeft(6, '0')
-                                          .toUpperCase());
-                                  setState(mounted, this.setState, () {
-                                    _foreColorSelected = newColor;
-                                  });
-                                }
-                                if (t.getIcons()[index].icon ==
-                                    Icons.format_color_fill) {
-                                  widget.controller.execCommand('hiliteColor',
-                                      argument: (newColor.value & 0xFFFFFF)
-                                          .toRadixString(16)
-                                          .padLeft(6, '0')
-                                          .toUpperCase());
-                                  setState(mounted, this.setState, () {
-                                    _backColorSelected = newColor;
-                                  });
-                                }
-                                setState(mounted, this.setState, () {
-                                  _colorSelected[index] =
-                                      !_colorSelected[index];
-                                });
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('Set color'),
-                            )
-                          ],
-                        ),
-                      );
-                    });
-              }
-            }
-          },
-          isSelected: _colorSelected,
-          children: t.getIcons(),
-        ));
       }
       if (t is ListButtons) {
         if (t.ul || t.ol) {

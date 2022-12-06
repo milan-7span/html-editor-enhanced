@@ -51,8 +51,6 @@ class EditorSettings {
   bool isStrikethrough;
   bool isSuperscript;
   bool isSubscript;
-  Color foregroundColor;
-  Color backgroundColor;
   bool isUl;
   bool isOl;
   bool isAlignLeft;
@@ -72,8 +70,6 @@ class EditorSettings {
     required this.isStrikethrough,
     required this.isSuperscript,
     required this.isSubscript,
-    required this.foregroundColor,
-    required this.backgroundColor,
     required this.isUl,
     required this.isOl,
     required this.isAlignLeft,
